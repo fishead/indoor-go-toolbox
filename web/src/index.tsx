@@ -1,10 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import * as serviceWorker from "./serviceWorker";
+import { HashRouter as Router } from "react-router-dom";
+import * as Sentry from "@sentry/browser";
+import App from "./App";
+import { name, version } from "../package.json";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+Sentry.init({
+  dsn: "https://497cb833875a4878bde917feca867683@sentry.jcbel.com/42",
+  environment:
+    process.env.NODE_ENV === "production" ? "production" : "development",
+  release: `${name.replace("@", "")}@${version}`
+});
+
+ReactDOM.render(
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById("root")
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
