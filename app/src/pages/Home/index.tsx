@@ -1,11 +1,11 @@
 import Taro, { FunctionComponent } from "@tarojs/taro";
-import { Button } from "@tarojs/components";
+import { AtButton } from "taro-ui";
 import Skaffold from "../../components/Skaffold";
 
 const routes = [
   {
-    name: "IBeacon 测试",
-    path: "/pages/IBeaconInspector/index"
+    name: "蓝牙测试",
+    path: "/pages/BluetoothInspector/index"
   },
   {
     name: "小程序 GPS 定位测试",
@@ -20,13 +20,18 @@ const routes = [
 const Home: FunctionComponent = () => {
   return (
     <Skaffold navigationBarTitleText="IndoorGo Toolbox">
-      {routes.map(route => (
-        <Button
+      {routes.map((route, index) => (
+        <AtButton
           key={route.path}
+          type="secondary"
+          customStyle={Object.assign(
+            { marginLeft: "20px", marginRight: "20px" },
+            index > 0 ? { marginTop: "10px" } : undefined
+          )}
           onClick={() => Taro.navigateTo({ url: route.path })}
         >
           {route.name}
-        </Button>
+        </AtButton>
       ))}
     </Skaffold>
   );

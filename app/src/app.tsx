@@ -1,7 +1,8 @@
+import "@tarojs/async-await";
 import Taro, { Component, Config } from "@tarojs/taro";
 import Home from "./pages/Home";
 
-import "./app.css";
+import "./app.scss";
 
 // 如果需要在 h5 环境中开启 React Devtools
 // 取消以下注释：
@@ -13,7 +14,7 @@ class App extends Component {
   config: Config = {
     pages: [
       "pages/Home/index",
-      "pages/IBeaconInspector/index",
+      "pages/BluetoothInspector/index",
       "pages/WeappGPSInspector/index",
       "pages/WebGPSInspector/index"
     ],
