@@ -9,7 +9,7 @@ const routes = [
   },
   {
     name: "小程序 GPS 定位测试",
-    path: "/pages/WeappGPSInspector/index"
+    path: "/pages/AppGPSInspector/index"
   },
   {
     name: "浏览器 GPS 定位测试",

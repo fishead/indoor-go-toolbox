@@ -15,7 +15,7 @@ class App extends Component {
     pages: [
       "pages/Home/index",
       "pages/BluetoothInspector/index",
-      "pages/WeappGPSInspector/index",
+      "pages/AppGPSInspector/index",
       "pages/WebGPSInspector/index"
     ],
     window: {
