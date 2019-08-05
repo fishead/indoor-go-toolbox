@@ -3,17 +3,19 @@ import { View, Text } from "@tarojs/components";
 
 interface Props {
   statusBarHeight: number;
+  titleBarHeight: number;
   navigationBarTitleText: string;
 }
 
 export const NavigationBar: FunctionComponent<Props> = ({
   navigationBarTitleText,
-  statusBarHeight
+  statusBarHeight,
+  titleBarHeight
 }) => {
   return (
     <View
       style={{
-        height: "44px",
+        height: `${titleBarHeight}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

@@ -55,6 +55,7 @@ module.exports = {
           {
             args: 'none',
             ignoreRestSiblings: true,
+            varsIgnorePattern: 'Taro'
           },
         ],
         'no-useless-constructor': 'off',

@@ -11,11 +11,20 @@ import "./app.scss";
 // }
 
 class App extends Component {
+  componentDidMount() {}
+
+  componentDidShow() {}
+
+  componentDidHide() {}
+
+  componentDidCatchError() {}
+
   config: Config = {
     pages: [
       "pages/Home/index",
-      "pages/BluetoothInspector/index",
       "pages/AppGPSInspector/index",
+      "pages/AppNetworkInspector/index",
+      "pages/BluetoothInspector/index",
       "pages/WebGPSInspector/index"
     ],
     window: {
@@ -26,14 +35,6 @@ class App extends Component {
       navigationBarTextStyle: "black"
     }
   };
-
-  componentDidMount() {}
-
-  componentDidShow() {}
-
-  componentDidHide() {}
-
-  componentDidCatchError() {}
 
   // 在 App 类中的 render() 函数没有实际作用
   // 请勿修改此函数
