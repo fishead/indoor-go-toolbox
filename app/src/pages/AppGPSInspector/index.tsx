@@ -9,7 +9,7 @@ import Skaffold from "../../components/Skaffold/index";
 
 type LocationType = Taro.getLocation.Param["type"];
 
-const WeappGPSInspector: FunctionComponent = () => {
+const AppGPSInspector: FunctionComponent = () => {
   const locationTypes = useMemo<LocationType[]>(() => ["gcj02", "wgs84"], []);
   const [locationType, setLocationType] = useState<LocationType>("gcj02");
   const getLocation = useCallback(() => {
@@ -39,4 +39,4 @@ const WeappGPSInspector: FunctionComponent = () => {
   );
 };
 
-export default WeappGPSInspector;
+export default AppGPSInspector;
