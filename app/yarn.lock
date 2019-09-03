@@ -474,9 +474,9 @@
   integrity sha1-8aEee6uww8rWgQC+OB0eBkxo8fY=
 
 "@types/react@^16.4.6":
-  version "16.8.23"
-  resolved "https://registry.npm.taobao.org/@types/react/download/@types/react-16.8.23.tgz?cache=0&sync_timestamp=1562173163684&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Freact%2Fdownload%2F%40types%2Freact-16.8.23.tgz#ec6be3ceed6353a20948169b6cb4c97b65b97ad2"
-  integrity sha1-7Gvjzu1jU6IJSBabbLTJe2W5etI=
+  version "16.9.2"
+  resolved "https://registry.npm.taobao.org/@types/react/download/@types/react-16.9.2.tgz#6d1765431a1ad1877979013906731aae373de268"
+  integrity sha1-bRdlQxoa0Yd5eQE5BnMarjc94mg=
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -733,7 +733,7 @@ acorn-dynamic-import@^3.0.0:
 
 acorn-jsx@^3.0.0:
   version "3.0.1"
-  resolved "https://registry.npm.taobao.org/acorn-jsx/download/acorn-jsx-3.0.1.tgz#afdf9488fb1ecefc8348f6fb22f464e32a58b36b"
+  resolved "https://registry.npm.taobao.org/acorn-jsx/download/acorn-jsx-3.0.1.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Facorn-jsx%2Fdownload%2Facorn-jsx-3.0.1.tgz#afdf9488fb1ecefc8348f6fb22f464e32a58b36b"
   integrity sha1-r9+UiPsezvyDSPb7IvRk4ypYs2s=
   dependencies:
     acorn "^3.0.4"
@@ -745,12 +745,12 @@ acorn-jsx@^5.0.0:
 
 acorn@^3.0.4:
   version "3.3.0"
-  resolved "https://registry.npm.taobao.org/acorn/download/acorn-3.3.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Facorn%2Fdownload%2Facorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
+  resolved "https://registry.npm.taobao.org/acorn/download/acorn-3.3.0.tgz?cache=0&sync_timestamp=1565683175517&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Facorn%2Fdownload%2Facorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
   integrity sha1-ReN/s56No/JbruP/U2niu18iAXo=
 
 acorn@^5.0.0, acorn@^5.5.0, acorn@^5.6.2:
   version "5.7.3"
-  resolved "https://registry.npm.taobao.org/acorn/download/acorn-5.7.3.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Facorn%2Fdownload%2Facorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
+  resolved "https://registry.npm.taobao.org/acorn/download/acorn-5.7.3.tgz?cache=0&sync_timestamp=1565683175517&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Facorn%2Fdownload%2Facorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
   integrity sha1-Z6ojG/iBKXS4UjWpZ3Hra9B+onk=
 
 acorn@^6.0.7:
@@ -3793,9 +3793,9 @@ escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
 eslint-config-prettier@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.npm.taobao.org/eslint-config-prettier/download/eslint-config-prettier-6.0.0.tgz#f429a53bde9fc7660e6353910fd996d6284d3c25"
-  integrity sha1-9CmlO96fx2YOY1ORD9mW1ihNPCU=
+  version "6.1.0"
+  resolved "https://registry.npm.taobao.org/eslint-config-prettier/download/eslint-config-prettier-6.1.0.tgz?cache=0&sync_timestamp=1566233524861&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Feslint-config-prettier%2Fdownload%2Feslint-config-prettier-6.1.0.tgz#e6f678ba367fbd1273998d5510f76f004e9dce7b"
+  integrity sha1-5vZ4ujZ/vRJzmY1VEPdvAE6dzns=
   dependencies:
     get-stdin "^6.0.0"
 
@@ -3955,7 +3955,7 @@ eslint-visitor-keys@^1.0.0:
 
 eslint@^4.15.0:
   version "4.19.1"
-  resolved "https://registry.npm.taobao.org/eslint/download/eslint-4.19.1.tgz#32d1d653e1d90408854bfb296f076ec7e186a300"
+  resolved "https://registry.npm.taobao.org/eslint/download/eslint-4.19.1.tgz?cache=0&sync_timestamp=1567194797387&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Feslint%2Fdownload%2Feslint-4.19.1.tgz#32d1d653e1d90408854bfb296f076ec7e186a300"
   integrity sha1-MtHWU+HZBAiFS/spbwdux+GGowA=
   dependencies:
     ajv "^5.3.0"
@@ -3999,7 +3999,7 @@ eslint@^4.15.0:
 
 eslint@^5.16.0:
   version "5.16.0"
-  resolved "https://registry.npm.taobao.org/eslint/download/eslint-5.16.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Feslint%2Fdownload%2Feslint-5.16.0.tgz#a1e3ac1aae4a3fbd8296fcf8f7ab7314cbb6abea"
+  resolved "https://registry.npm.taobao.org/eslint/download/eslint-5.16.0.tgz?cache=0&sync_timestamp=1567194797387&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Feslint%2Fdownload%2Feslint-5.16.0.tgz#a1e3ac1aae4a3fbd8296fcf8f7ab7314cbb6abea"
   integrity sha1-oeOsGq5KP72Clvz496tzFMu2q+o=
   dependencies:
     "@babel/code-frame" "^7.0.0"
@@ -7185,9 +7185,9 @@ nan@^2.12.1, nan@^2.13.2:
   integrity sha1-eBj3IgJ7JFmobwKV1DTR/CM2xSw=
 
 nanoid@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.npm.taobao.org/nanoid/download/nanoid-2.0.3.tgz#dde999e173bc9d7bd2ee2746b89909ade98e075e"
-  integrity sha1-3emZ4XO8nXvS7idGuJkJremOB14=
+  version "2.1.0"
+  resolved "https://registry.npm.taobao.org/nanoid/download/nanoid-2.1.0.tgz#3de3dbd68cfb2f3bd52550e2bfd439cf75040eb2"
+  integrity sha1-PePb1oz7LzvVJVDiv9Q5z3UEDrI=
 
 nanomatch@^1.2.9:
   version "1.2.13"
@@ -7231,13 +7231,13 @@ neo-async@^2.5.0:
   integrity sha1-rCetpmFn+ohJpq3dg39rGJrSCBw=
 
 nerv-devtools@^1.4.3:
-  version "1.4.3"
-  resolved "https://registry.npm.taobao.org/nerv-devtools/download/nerv-devtools-1.4.3.tgz#b05cf54a9d9313c0831b10cf9db04254d60d9c3b"
-  integrity sha1-sFz1Sp2TE8CDGxDPnbBCVNYNnDs=
+  version "1.4.4"
+  resolved "https://registry.npm.taobao.org/nerv-devtools/download/nerv-devtools-1.4.4.tgz#e558dd7b8049ae2292da437d25d8e8f570b784fb"
+  integrity sha1-5Vjde4BJriKS2kN9Jdjo9XC3hPs=
   dependencies:
     nerv-shared "1.4.0"
     nerv-utils "1.4.3"
-    nervjs "1.4.3"
+    nervjs "1.4.4"
 
 nerv-shared@1.4.0:
   version "1.4.0"
@@ -7249,10 +7249,10 @@ nerv-utils@1.4.3:
   resolved "https://registry.npm.taobao.org/nerv-utils/download/nerv-utils-1.4.3.tgz#5a23d109147f56f478beed24794ff942fe4e4927"
   integrity sha1-WiPRCRR/VvR4vu0keU/5Qv5OSSc=
 
-nervjs@1.4.3, nervjs@^1.4.3:
-  version "1.4.3"
-  resolved "https://registry.npm.taobao.org/nervjs/download/nervjs-1.4.3.tgz?cache=0&sync_timestamp=1561430300086&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fnervjs%2Fdownload%2Fnervjs-1.4.3.tgz#8ef7d610f6400fb81e7ca41f880612a62416a20b"
-  integrity sha1-jvfWEPZAD7gefKQfiAYSpiQWogs=
+nervjs@1.4.4, nervjs@^1.4.3:
+  version "1.4.4"
+  resolved "https://registry.npm.taobao.org/nervjs/download/nervjs-1.4.4.tgz#a843f0a5b846707021a44490c361c8440e99027f"
+  integrity sha1-qEPwpbhGcHAhpESQw2HIRA6ZAn8=
   dependencies:
     nerv-shared "1.4.0"
     nerv-utils "1.4.3"
@@ -8822,7 +8822,7 @@ regex-parser@^2.2.9:
 
 regexpp@^1.0.1:
   version "1.1.0"
-  resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-1.1.0.tgz#0e3516dd0b7904f413d2d4193dce4618c3a689ab"
+  resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-1.1.0.tgz?cache=0&sync_timestamp=1567133099881&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fregexpp%2Fdownload%2Fregexpp-1.1.0.tgz#0e3516dd0b7904f413d2d4193dce4618c3a689ab"
   integrity sha1-DjUW3Qt5BPQT0tQZPc5GGMOmias=
 
 regexpp@^2.0.1:
@@ -10118,7 +10118,7 @@ symbol-observable@1.0.1:
 
 table@4.0.2:
   version "4.0.2"
-  resolved "https://registry.npm.taobao.org/table/download/table-4.0.2.tgz?cache=0&sync_timestamp=1564593957870&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ftable%2Fdownload%2Ftable-4.0.2.tgz#a33447375391e766ad34d3486e6e2aedc84d2e36"
+  resolved "https://registry.npm.taobao.org/table/download/table-4.0.2.tgz?cache=0&sync_timestamp=1565881929670&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ftable%2Fdownload%2Ftable-4.0.2.tgz#a33447375391e766ad34d3486e6e2aedc84d2e36"
   integrity sha1-ozRHN1OR52atNNNIbm4q7chNLjY=
   dependencies:
     ajv "^5.2.3"
@@ -10202,9 +10202,9 @@ taro-css-to-react-native@1.3.11:
     postcss-value-parser "^3.3.0"
 
 taro-ui@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.npm.taobao.org/taro-ui/download/taro-ui-2.2.1.tgz#26f74f1f5e278888a87ee921ac71f33dffcb8601"
-  integrity sha1-JvdPH14niIiofukhrHHzPf/LhgE=
+  version "2.2.2"
+  resolved "https://registry.npm.taobao.org/taro-ui/download/taro-ui-2.2.2.tgz#485847ed2ac2343c394477b25bbea439e0adc03d"
+  integrity sha1-SFhH7SrCNDw5RHeyW76kOeCtwD0=
   dependencies:
     "@types/react" "^16.7.3"
     bind-decorator "^1.0.11"

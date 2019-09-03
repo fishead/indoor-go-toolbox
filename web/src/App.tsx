@@ -8,16 +8,11 @@ const GPSInspector = Loadable({
   loader: () => import("./pages/GPSInspector"),
   loading: Loading
 });
-const GPSReport = Loadable({
-  loader: () => import("./pages/GPSReport"),
-  loading: Loading
-})
 
 export const App = () => (
   <Container>
     <Route path="/gps-inspector" component={GPSInspector} />
     <Route path="/gps/inspector" component={GPSInspector} />
-    <Route path="/gps/reporter" component={GPSReport} />
   </Container>
 );
 
