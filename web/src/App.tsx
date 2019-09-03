@@ -12,6 +12,7 @@ const GPSInspector = Loadable({
 export const App = () => (
   <Container>
     <Route path="/gps-inspector" component={GPSInspector} />
+    <Route path="/gps/inspector" component={GPSInspector} />
   </Container>
 );
 
