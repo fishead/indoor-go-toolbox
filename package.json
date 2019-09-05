@@ -1,6 +1,6 @@
 {
   "name": "indoor-go-toolbox",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "IndoorGo toolbox",
   "main": "index.js",
   "repository": "https://github.com/JCBLE/indoor-go-toolbox.git",

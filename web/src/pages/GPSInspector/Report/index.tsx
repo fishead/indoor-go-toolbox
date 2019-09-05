@@ -17,7 +17,7 @@ export interface Props extends RouteComponentProps {
   statistic: Statistic;
 }
 
-export const GPSReport: FC<Props> = props => {
+export const Report: FC<Props> = props => {
   const goBack = useCallback(() => {
     props.history.goBack();
   }, [props.history]);
@@ -54,4 +54,4 @@ export const GPSReport: FC<Props> = props => {
   );
 };
 
-export default GPSReport;
+export default Report;
