@@ -1,11 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useMemo,
-  useState,
-  FC,
-  useReducer
-} from "react";
+import React, { useCallback, useMemo, useState, FC, useReducer } from "react";
 import Button from "@material-ui/core/button";
 import Snackbar from "@material-ui/core/Snackbar";
 import Paper from "@material-ui/core/Paper";
@@ -21,43 +14,31 @@ import { Route, RouteComponentProps } from "react-router-dom";
 import Loadable from "react-loadable";
 import Loading from "../../components/Loading";
 import Toolbar from "@material-ui/core/Toolbar";
-import { Statistic as ReportStatistic } from "./Report";
-import { propOr } from "ramda";
-import sortBy from "ramda/es/sortBy";
+import { reducer, defaultState } from "./reducer";
+import {
+  ChangeEnableHighAccuracyActionPayload,
+  ChangeMaximumAgeActionPayload,
+  ChangeTimeoutActionPayload
+} from "./types";
+import {
+  changeEnableHighAccuracy,
+  changeMaximumAge,
+  changeTimeout,
+  clearResults,
+  startGetCurrentPosition,
+  getPositionSuccess,
+  getPositionError
+} from "./actions";
+import PositionOnMap from "./PositionOnMap";
 
 const Report = Loadable({
   loader: () => import("./Report"),
   loading: Loading
 });
 
-interface EnableHighAccuracyChangeAction {
-  type: "enable-high-accuracy-change";
-  payload: {
-    select: "default" | "true" | "false";
-  };
-}
-interface MaximumAgeChangeAction {
-  type: "maximum-age-change";
-  payload: {
-    select: "default" | "positive-infinity" | "custom";
-    input: string;
-  };
-}
-interface TimeoutChangeAction {
-  type: "timeout-change";
-  payload: {
-    select: "default" | "positive-infinity" | "custom";
-    input: string;
-  };
-}
-type PositionOptionsChangeAction =
-  | EnableHighAccuracyChangeAction
-  | MaximumAgeChangeAction
-  | TimeoutChangeAction;
-
 const enableHighAccuracyOptions: {
   name: string;
-  value: EnableHighAccuracyChangeAction["payload"]["select"];
+  value: ChangeEnableHighAccuracyActionPayload["select"];
 }[] = [
   {
     name: "默认值",
@@ -75,7 +56,7 @@ const enableHighAccuracyOptions: {
 
 const maximumAgeOptions: {
   name: string;
-  value: MaximumAgeChangeAction["payload"]["select"];
+  value: ChangeMaximumAgeActionPayload["select"];
 }[] = [
   {
     name: "默认值",
@@ -91,245 +72,25 @@ const maximumAgeOptions: {
   }
 ];
 
-interface Statistic extends ReportStatistic {
-  raw: {
-    [key: number]: ReportStatistic["data"][0];
-  };
-}
-
 export const GPSInspector: FC<RouteComponentProps> = props => {
   const geolocation = useMemo(() => window.navigator.geolocation, []);
 
-  const [results, setResults] = useState("");
-  const defaultStatistic: Statistic = {
-    successCount: 0,
-    errorCount: 0,
-    data: [],
-    raw: {}
-  };
-  const [statistic, setStatistic] = useState<Statistic>(defaultStatistic);
+  const [state, dispatch] = useReducer(reducer, defaultState as any);
 
-  const clearResults = useCallback(() => {
-    setResults("");
-    setStatistic(defaultStatistic);
-  }, [defaultStatistic]);
-
-  const updateStatistic = useCallback(
-    (posOrError: Position | PositionError) => {
-      setStatistic(prevStatistic => {
-        if ((posOrError as PositionError).message) {
-          return {
-            ...prevStatistic,
-            errorCount: prevStatistic.errorCount + 1
-          };
-        }
-
-        const {
-          coords: { accuracy }
-        } = posOrError as Position;
-        const formattedAccuracy = Math.round(accuracy);
-
-        const prevAccuracyStatistic: Statistic["raw"] extends {
-          [key: number]: infer D;
-        }
-          ? D
-          : never = propOr(
-          { accuracy: formattedAccuracy, count: 0 },
-          formattedAccuracy.toString(),
-          prevStatistic.raw
-        );
-        const nextAccuracyStatistic: Statistic["raw"] extends {
-          [key: number]: infer D;
-        }
-          ? D
-          : never = {
-          accuracy: formattedAccuracy,
-          count: prevAccuracyStatistic.count + 1
-        };
-        const nextRaw: Statistic["raw"] = {
-          ...prevStatistic.raw,
-          [formattedAccuracy]: nextAccuracyStatistic
-        };
-        return {
-          ...prevStatistic,
-          successCount: prevStatistic.successCount + 1,
-          data: sortBy(d => d.accuracy, Object.values(nextRaw)),
-          raw: nextRaw
-        };
-      });
-    },
-    []
-  );
-
-  const successCallback: PositionCallback = useCallback(
-    pos => {
-      setResults(content => `${stringifyPosition(pos)}\n\n${content}`);
-      updateStatistic(pos);
-    },
-    [updateStatistic]
-  );
-  const errorCallback: PositionErrorCallback = useCallback(
-    err => {
-      setResults(content => content + err.message + "\n\n");
-      updateStatistic(err);
-    },
-    [updateStatistic]
-  );
-
-  interface State {
-    positionOptions: PositionOptions;
-    enableHighAccuracy: EnableHighAccuracyChangeAction["payload"];
-    maximumAge: MaximumAgeChangeAction["payload"];
-    timeout: TimeoutChangeAction["payload"];
-  }
-  const [state, dispatch] = useReducer(
-    (state: State, action: PositionOptionsChangeAction): State => {
-      const { type, payload } = action;
-      switch (type) {
-        case "enable-high-accuracy-change":
-          const enableHighAccuracyPayload = payload as EnableHighAccuracyChangeAction["payload"];
-          const {
-            select: enableHighAccuracySelect
-          } = enableHighAccuracyPayload;
-          if (enableHighAccuracySelect === "true") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                enableHighAccuracy: true
-              },
-              enableHighAccuracy: enableHighAccuracyPayload
-            };
-          } else if (enableHighAccuracySelect === "false") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                enableHighAccuracy: false
-              },
-              enableHighAccuracy: enableHighAccuracyPayload
-            };
-          }
-          return {
-            ...state,
-            positionOptions: {
-              ...state.positionOptions,
-              enableHighAccuracy: undefined
-            },
-            enableHighAccuracy: enableHighAccuracyPayload
-          };
-        case "maximum-age-change":
-          const maximumAgePayload = payload as MaximumAgeChangeAction["payload"];
-          const {
-            select: maximumAgeSelect,
-            input: maximumAgeInput
-          } = maximumAgePayload;
-          if (maximumAgeSelect === "custom") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                maximumAge: Number(maximumAgeInput)
-              },
-              maximumAge: maximumAgePayload
-            };
-          } else if (maximumAgeSelect === "positive-infinity") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                maximumAge: Number.POSITIVE_INFINITY
-              },
-              maximumAge: maximumAgePayload
-            };
-          }
-          return {
-            ...state,
-            positionOptions: {
-              ...state.positionOptions,
-              maximumAge: undefined
-            },
-            maximumAge: maximumAgePayload
-          };
-        case "timeout-change":
-          const timeoutPayload = payload as TimeoutChangeAction["payload"];
-          const { select: timeoutSelect, input: timeoutInput } = timeoutPayload;
-          if (timeoutSelect === "custom") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                timeout: Number(timeoutInput)
-              },
-              timeout: timeoutPayload
-            };
-          } else if (timeoutSelect === "positive-infinity") {
-            return {
-              ...state,
-              positionOptions: {
-                ...state.positionOptions,
-                timeout: Number.POSITIVE_INFINITY
-              },
-              timeout: timeoutPayload
-            };
-          }
-          return {
-            ...state,
-            positionOptions: {
-              ...state.positionOptions,
-              timeout: undefined
-            },
-            timeout: timeoutPayload
-          };
-        default:
-          return state;
-      }
-    },
-    {
-      positionOptions: {
-        enableHighAccuracy: undefined,
-        maximumAge: undefined,
-        timeout: undefined
-      },
-      enableHighAccuracy: {
-        select: "default"
-      },
-      maximumAge: {
-        select: "default",
-        input: ""
-      },
-      timeout: {
-        select: "default",
-        input: ""
-      }
-    },
-    args => args
-  );
-
-  const [waitingLocation, setWaitingLocation] = useState(false);
   const getCurrentPosition = useCallback(() => {
-    if (waitingLocation) {
+    if (state.waitingLocation) {
       return;
     }
-    setWaitingLocation(true);
+    dispatch(startGetCurrentPosition());
     geolocation.getCurrentPosition(
-      pos => {
-        successCallback(pos);
-        setWaitingLocation(false);
-      },
-      err => {
-        errorCallback(err);
-        setWaitingLocation(false);
-      },
-      state.positionOptions
+      pos =>
+        dispatch(
+          getPositionSuccess({ source: "getCurrentPosition", position: pos })
+        ),
+      err => dispatch(getPositionError(err)),
+      state.form.positionOptions
     );
-  }, [
-    errorCallback,
-    geolocation,
-    state.positionOptions,
-    successCallback,
-    waitingLocation
-  ]);
+  }, [geolocation, state.form.positionOptions, state.waitingLocation]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [watchId, setWatchId] = useState();
@@ -341,18 +102,15 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
 
     setWatchId(
       geolocation.watchPosition(
-        successCallback,
-        errorCallback,
-        state.positionOptions
+        pos =>
+          dispatch(
+            getPositionSuccess({ source: "watchPosition", position: pos })
+          ),
+        err => dispatch(getPositionError(err)),
+        state.form.positionOptions
       )
     );
-  }, [
-    errorCallback,
-    geolocation,
-    state.positionOptions,
-    successCallback,
-    watchId
-  ]);
+  }, [geolocation, state.form.positionOptions, watchId]);
 
   const stopWatchLocation = useCallback(() => {
     setSnackbarOpen(isSnackbarOpen =>
@@ -366,7 +124,13 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
 
   const showCharts = useCallback(() => {
     props.history.push({
-      pathname: props.match.path + "/report"
+      pathname: props.match.path + "/charts"
+    });
+  }, [props.history, props.match.path]);
+
+  const showOnMap = useCallback(() => {
+    props.history.push({
+      pathname: props.match.path + "/map"
     });
   }, [props.history, props.match.path]);
 
@@ -375,10 +139,11 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
   }
 
   return (
-    <Fragment>
+    <>
       <form
         style={{
-          padding: "2px 4px"
+          padding: "2px 4px",
+          backgroundColor: "white"
         }}
       >
         <Helmet>
@@ -390,20 +155,19 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
               Enable High Accuracy
             </InputLabel>
             <Select
-              value={state.enableHighAccuracy.select}
+              value={state.form.enableHighAccuracyField.select}
               onChange={evt =>
-                dispatch({
-                  type: "enable-high-accuracy-change",
-                  payload: {
+                dispatch(
+                  changeEnableHighAccuracy({
                     select: evt.target
-                      .value as EnableHighAccuracyChangeAction["payload"]["select"]
-                  }
-                })
+                      .value as ChangeEnableHighAccuracyActionPayload["select"]
+                  })
+                )
               }
               input={
                 <Input
                   id="enable-high-accuracy"
-                  value={state.enableHighAccuracy.select}
+                  value={state.form.enableHighAccuracyField.select}
                 />
               }
             >
@@ -425,19 +189,21 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
             <FormControl style={{ width: "30%" }}>
               <InputLabel htmlFor="maximum-age">Maximum Age</InputLabel>
               <Select
-                value={state.maximumAge.select}
+                value={state.form.maximumAgeField.select}
                 onChange={evt =>
-                  dispatch({
-                    type: "maximum-age-change",
-                    payload: {
+                  dispatch(
+                    changeMaximumAge({
                       select: evt.target
-                        .value as MaximumAgeChangeAction["payload"]["select"],
-                      input: state.maximumAge.input
-                    }
-                  })
+                        .value as ChangeMaximumAgeActionPayload["select"],
+                      input: state.form.maximumAgeField.input
+                    })
+                  )
                 }
                 input={
-                  <Input id="maximum-age" value={state.maximumAge.select} />
+                  <Input
+                    id="maximum-age"
+                    value={state.form.maximumAgeField.select}
+                  />
                 }
               >
                 {maximumAgeOptions.map(opt => (
@@ -451,17 +217,16 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
               <TextField
                 type="number"
                 label="Custom"
-                value={state.maximumAge.input}
+                value={state.form.maximumAgeField.input}
                 onChange={evt =>
-                  dispatch({
-                    type: "maximum-age-change",
-                    payload: {
+                  dispatch(
+                    changeMaximumAge({
                       select: "custom",
                       input: evt.target.value
-                    }
-                  })
+                    })
+                  )
                 }
-                disabled={state.maximumAge.select !== "custom"}
+                disabled={state.form.maximumAgeField.select !== "custom"}
               />
             </FormControl>
           </div>
@@ -476,18 +241,19 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
             <FormControl style={{ width: "30%" }}>
               <InputLabel htmlFor="timeout">Timeout</InputLabel>
               <Select
-                value={state.timeout.select}
+                value={state.form.timeoutField.select}
                 onChange={evt =>
-                  dispatch({
-                    type: "timeout-change",
-                    payload: {
+                  dispatch(
+                    changeTimeout({
                       select: evt.target
-                        .value as TimeoutChangeAction["payload"]["select"],
-                      input: state.timeout.input
-                    }
-                  })
+                        .value as ChangeTimeoutActionPayload["select"],
+                      input: state.form.timeoutField.input
+                    })
+                  )
                 }
-                input={<Input id="timeout" value={state.timeout.select} />}
+                input={
+                  <Input id="timeout" value={state.form.timeoutField.select} />
+                }
               >
                 {maximumAgeOptions.map(opt => (
                   <MenuItem key={opt.value} value={opt.value}>
@@ -501,17 +267,16 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
               <TextField
                 type="number"
                 label="Custom"
-                value={state.timeout.input}
+                value={state.form.timeoutField.input}
                 onChange={evt =>
-                  dispatch({
-                    type: "timeout-change",
-                    payload: {
+                  dispatch(
+                    changeTimeout({
                       select: "custom",
                       input: evt.target.value
-                    }
-                  })
+                    })
+                  )
                 }
-                disabled={state.timeout.select !== "custom"}
+                disabled={state.form.timeoutField.select !== "custom"}
               />
             </FormControl>
           </div>
@@ -525,9 +290,9 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
         >
           <Button
             onClick={() => getCurrentPosition()}
-            disabled={waitingLocation}
+            disabled={state.waitingLocation}
           >
-            {waitingLocation && <CircularProgress size={24} />}Get Current
+            {state.waitingLocation && <CircularProgress size={24} />}Get Current
             Location
           </Button>
           <Button onClick={() => startWatchLocation()}>
@@ -539,10 +304,11 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
         </div>
 
         <div style={{ position: "relative" }}>
-          {results && (
+          {state.results && (
             <Toolbar style={{ justifyContent: "center", textAlign: "center" }}>
-              <Button onClick={() => clearResults()}>Clear</Button>
+              <Button onClick={() => dispatch(clearResults())}>Clear</Button>
               <Button onClick={() => showCharts()}>Charts</Button>
+              <Button onClick={() => showOnMap()}>Map</Button>
             </Toolbar>
           )}
 
@@ -553,7 +319,7 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
               overflow: "auto"
             }}
           >
-            <pre>{results}</pre>
+            <pre>{state.results}</pre>
           </div>
         </div>
       </form>
@@ -566,23 +332,24 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
       />
 
       <Route
-        path={props.match.path + "/report"}
-        render={routeProps => <Report {...routeProps} statistic={statistic} />}
+        path={props.match.path + "/charts"}
+        render={routeProps => (
+          <Report {...routeProps} statistic={state.statistic} />
+        )}
       />
-    </Fragment>
+
+      <Route
+        path={props.match.path + "/map"}
+        children={routeProps => (
+          <PositionOnMap
+            open={!!routeProps.match}
+            {...routeProps}
+            locations={state.locations}
+          />
+        )}
+      />
+    </>
   );
 };
 
 export default GPSInspector;
-
-function stringifyPosition(pos: Position) {
-  return `timestamp: ${pos.timestamp}
-time: ${new Date(pos.timestamp).toLocaleString()}
-accuracy: ${pos.coords.accuracy}
-latitude: ${pos.coords.latitude}
-longitude: ${pos.coords.longitude}
-altitude: ${pos.coords.altitude}
-altitudeAccuracy: ${pos.coords.altitudeAccuracy}
-heading: ${pos.coords.heading}
-speed: ${pos.coords.speed}`;
-}
