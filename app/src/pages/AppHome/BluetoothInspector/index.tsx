@@ -1,7 +1,7 @@
 import Taro, { FunctionComponent, useCallback, useState } from "@tarojs/taro";
 import { View, ScrollView } from "@tarojs/components";
 import { AtButton, AtSwitch, AtFloatLayout } from "taro-ui";
-import Skaffold from "../../components/Skaffold/index";
+import Skaffold from "../../../components/Skaffold/index";
 
 type Beacon = {
   uuid: string;
@@ -58,50 +58,53 @@ const BluetoothInspector: FunctionComponent = () => {
     );
   }, []);
 
-  const startBluetoothDiscovery = useCallback(async (uuids: string[]) => {
-    setScanningState("bluetooth_scanning_starting");
-    const formattedUuids = uuids.map(uuid => uuid.toUpperCase());
-    Taro.onBluetoothDeviceFound(evt => {
-      const devices = evt.devices;
+  const startBluetoothDiscovery = useCallback(
+    async (uuids: string[]) => {
+      setScanningState("bluetooth_scanning_starting");
+      const formattedUuids = uuids.map(uuid => uuid.toUpperCase());
+      Taro.onBluetoothDeviceFound(evt => {
+        const devices = evt.devices;
 
-      const beacons = devices
-        .map(device => {
-          const advertisement = ab2hex(device.advertisData).toUpperCase();
-          return {
-            device,
-            advertisement
-          };
-        })
-        .filter(({ advertisement }) => advertisement.startsWith("4C000215"))
-        .map(({ device, advertisement }) => {
-          const uuid1 = advertisement.substr(8, 8);
-          const uuid2 = advertisement.substr(16, 4);
-          const uuid3 = advertisement.substr(20, 4);
-          const uuid4 = advertisement.substr(24, 4);
-          const uuid5 = advertisement.substr(28, 12);
-          const uuid = [uuid1, uuid2, uuid3, uuid4, uuid5]
-            .join("-")
-            .toUpperCase();
-          const major = Number.parseInt(advertisement.substr(40, 4), 16);
-          const minor = Number.parseInt(advertisement.substr(44, 4), 16);
-          const rssi = device.RSSI;
+        const beacons = devices
+          .map(device => {
+            const advertisement = ab2hex(device.advertisData).toUpperCase();
+            return {
+              device,
+              advertisement
+            };
+          })
+          .filter(({ advertisement }) => advertisement.startsWith("4C000215"))
+          .map(({ device, advertisement }) => {
+            const uuid1 = advertisement.substr(8, 8);
+            const uuid2 = advertisement.substr(16, 4);
+            const uuid3 = advertisement.substr(20, 4);
+            const uuid4 = advertisement.substr(24, 4);
+            const uuid5 = advertisement.substr(28, 12);
+            const uuid = [uuid1, uuid2, uuid3, uuid4, uuid5]
+              .join("-")
+              .toUpperCase();
+            const major = Number.parseInt(advertisement.substr(40, 4), 16);
+            const minor = Number.parseInt(advertisement.substr(44, 4), 16);
+            const rssi = device.RSSI;
 
-          return {
-            uuid,
-            major,
-            minor,
-            rssi
-          };
-        })
-        .filter(beacon => formattedUuids.includes(beacon.uuid));
-      addResult(beacons);
-    });
-    await Taro.openBluetoothAdapter();
-    await Taro.startBluetoothDevicesDiscovery({
-      allowDuplicatesKey: true
-    });
-    setScanningState("bluetooth_scanning");
-  }, []);
+            return {
+              uuid,
+              major,
+              minor,
+              rssi
+            };
+          })
+          .filter(beacon => formattedUuids.includes(beacon.uuid));
+        addResult(beacons);
+      });
+      await Taro.openBluetoothAdapter();
+      await Taro.startBluetoothDevicesDiscovery({
+        allowDuplicatesKey: true
+      });
+      setScanningState("bluetooth_scanning");
+    },
+    [addResult]
+  );
 
   const stopBluetoothDiscovery = useCallback(async () => {
     setScanningState("bluetooth_scanning_stopping");
@@ -109,24 +112,27 @@ const BluetoothInspector: FunctionComponent = () => {
     setScanningState("free");
   }, []);
 
-  const startBeaconDiscovery = useCallback(async (uuids: string[]) => {
-    setScanningState("beacon_scanning_starting");
-    Taro.onBeaconUpdate(evt => {
-      const beacons = evt.beacons.map(beacon => {
-        return {
-          ...beacon,
-          uuid: beacon.uuid.toUpperCase(),
-          major: Number.parseInt(beacon.major, 10),
-          minor: Number.parseInt(beacon.minor, 10)
-        };
+  const startBeaconDiscovery = useCallback(
+    async (uuids: string[]) => {
+      setScanningState("beacon_scanning_starting");
+      Taro.onBeaconUpdate(evt => {
+        const beacons = evt.beacons.map(beacon => {
+          return {
+            ...beacon,
+            uuid: beacon.uuid.toUpperCase(),
+            major: Number.parseInt(beacon.major, 10),
+            minor: Number.parseInt(beacon.minor, 10)
+          };
+        });
+        addResult(beacons);
       });
-      addResult(beacons);
-    });
-    await Taro.startBeaconDiscovery({
-      uuids
-    });
-    setScanningState("beacon_scanning");
-  }, []);
+      await Taro.startBeaconDiscovery({
+        uuids
+      });
+      setScanningState("beacon_scanning");
+    },
+    [addResult]
+  );
 
   const stopBeaconDiscovery = useCallback(async () => {
     setScanningState("beacon_scanning_stopping");
@@ -137,7 +143,7 @@ const BluetoothInspector: FunctionComponent = () => {
   const [viewResult, setViewResult] = useState<Result | undefined>();
 
   return (
-    <Skaffold navigationBarTitleText="蓝牙测试">
+    <Skaffold>
       {beaconUuids.map(uuid => (
         <AtSwitch
           key={uuid}

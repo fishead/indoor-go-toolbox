@@ -7,5 +7,12 @@
   "author": "DevOps <devops@jcble.com>",
   "license": "MIT",
   "private": true,
-  "workspaces": []
+  "workspaces": [],
+  "devDependencies": {
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^1.18.2",
+    "react-scripts": "^3.2.0",
+    "typescript": "^3.6.4"
+  }
 }

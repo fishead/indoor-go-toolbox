@@ -1,7 +1,6 @@
 import "@tarojs/async-await";
 import Taro, { Component, Config } from "@tarojs/taro";
-import Home from "./pages/Home";
-
+import { View } from "@tarojs/components";
 import "./app.scss";
 
 // 如果需要在 h5 环境中开启 React Devtools
@@ -20,26 +19,32 @@ class App extends Component {
   componentDidCatchError() {}
 
   config: Config = {
-    pages: [
-      "pages/Home/index",
-      "pages/AppGPSInspector/index",
-      "pages/AppNetworkInspector/index",
-      "pages/BluetoothInspector/index",
-      "pages/WebGPSInspector/index"
-    ],
+    pages: ["pages/AppHome/index", "pages/WebHome/index"],
     window: {
-      navigationStyle: "custom",
+      navigationStyle: "default",
       backgroundTextStyle: "light",
       navigationBarBackgroundColor: "#fff",
-      navigationBarTitleText: "WeChat",
+      navigationBarTitleText: "IndoorGo toolbox",
       navigationBarTextStyle: "black"
+    },
+    tabBar: {
+      list: [
+        {
+          text: "小程序",
+          pagePath: "pages/AppHome/index"
+        },
+        {
+          text: "浏览器",
+          pagePath: "pages/WebHome/index"
+        }
+      ]
     }
   };
 
   // 在 App 类中的 render() 函数没有实际作用
   // 请勿修改此函数
   render() {
-    return <Home />;
+    return <View></View>;
   }
 }
 

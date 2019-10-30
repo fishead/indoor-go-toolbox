@@ -5,11 +5,11 @@ import Taro, {
   useMemo
 } from "@tarojs/taro";
 import { View, Text, Button, Label, Picker } from "@tarojs/components";
-import Skaffold from "../../components/Skaffold/index";
+import Skaffold from "../../../components/Skaffold/index";
 
 type LocationType = Taro.getLocation.Param["type"];
 
-const AppGPSInspector: FunctionComponent = () => {
+const SatelliteLocationInspector: FunctionComponent = () => {
   const locationTypes = useMemo<LocationType[]>(() => ["gcj02", "wgs84"], []);
   const [locationType, setLocationType] = useState<LocationType>("gcj02");
   const getLocation = useCallback(() => {
@@ -19,7 +19,7 @@ const AppGPSInspector: FunctionComponent = () => {
   }, [locationType]);
 
   return (
-    <Skaffold navigationBarTitleText="小程序 GPS 定位测试">
+    <Skaffold>
       <Text>显示当前位置</Text>
       <Label>
         <Picker
@@ -39,4 +39,4 @@ const AppGPSInspector: FunctionComponent = () => {
   );
 };
 
-export default AppGPSInspector;
+export default SatelliteLocationInspector;

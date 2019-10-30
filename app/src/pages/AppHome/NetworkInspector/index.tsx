@@ -2,7 +2,6 @@ import Taro, {
   FunctionComponent,
   useCallback,
   useState,
-  useContext,
   useMemo
 } from "@tarojs/taro";
 import { View, ScrollView, Picker, Label } from "@tarojs/components";
@@ -18,7 +17,7 @@ import {
   takeUntil
 } from "rxjs/operators";
 import nanoid from "nanoid/non-secure";
-import Skaffold, { SkaffoldContext } from "../../components/Skaffold/index";
+import Skaffold from "../../../components/Skaffold/index";
 
 interface Result {
   id: number;
@@ -48,7 +47,7 @@ const uniqueId = (() => {
   };
 })();
 
-const AppNetworkInspector: FunctionComponent = () => {
+const NetworkInspector: FunctionComponent = () => {
   const [requestMode, setRequestMode] = useState<Mode>("sequence");
   const [requestCount, setRequestCount] = useState<number>(1);
   const [requestInterval, setRequestInterval] = useState<number>(1000);
@@ -151,10 +150,8 @@ const AppNetworkInspector: FunctionComponent = () => {
     [setRequestState, setResults, stopSignal$]
   );
 
-  const { statusBarHeight, titleBarHeight } = useContext(SkaffoldContext);
-
   return (
-    <Skaffold navigationBarTitleText="网络测试">
+    <Skaffold>
       <View className="at-row at-row--wrap">
         <View className="at-col at-col-12">
           <Picker
@@ -264,14 +261,12 @@ const AppNetworkInspector: FunctionComponent = () => {
         })}
       </ScrollView>
 
-      <AtMessage
-        customStyle={{ marginTop: `${statusBarHeight + titleBarHeight}px` }}
-      />
+      <AtMessage />
     </Skaffold>
   );
 };
 
-export default AppNetworkInspector;
+export default NetworkInspector;
 
 function getTime(datetime: Date) {
   const hours = datetime
