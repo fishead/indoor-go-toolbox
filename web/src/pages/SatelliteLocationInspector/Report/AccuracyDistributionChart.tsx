@@ -15,6 +15,7 @@ export const AccuracyDistributionChart: FC<Props> = props => {
       <BarChart
         data={props.data}
         margin={{ top: 20, right: 30, bottom: 15, left: 0 }}
+        barCategoryGap={10}
       >
         <XAxis
           name="Accuracy"

@@ -72,7 +72,7 @@ const maximumAgeOptions: {
   }
 ];
 
-export const GPSInspector: FC<RouteComponentProps> = props => {
+export const SatelliteLocationInspector: FC<RouteComponentProps> = props => {
   const geolocation = useMemo(() => window.navigator.geolocation, []);
 
   const [state, dispatch] = useReducer(reducer, defaultState as any);
@@ -133,6 +133,8 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
       pathname: props.match.path + "/map"
     });
   }, [props.history, props.match.path]);
+
+  const [selectedCartogramId, setSelectedCartogramId] = useState<string>("");
 
   if (!geolocation) {
     return <Paper>地理位置服务不可用</Paper>;
@@ -340,11 +342,13 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
 
       <Route
         path={props.match.path + "/map"}
-        children={routeProps => (
+        render={routeProps => (
           <PositionOnMap
             open={!!routeProps.match}
             {...routeProps}
             locations={state.locations}
+            cartogramId={selectedCartogramId}
+            onSelectCartogramId={setSelectedCartogramId}
           />
         )}
       />
@@ -352,4 +356,4 @@ export const GPSInspector: FC<RouteComponentProps> = props => {
   );
 };
 
-export default GPSInspector;
+export default SatelliteLocationInspector;

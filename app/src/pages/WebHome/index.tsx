@@ -16,7 +16,7 @@ interface WebPageRoute {
 const SatelliteLocationInspectorRoute: WebPageRoute = {
   text: "卫星定位测试",
   pagePath:
-    "https://cdn.jcbel.com/indoor-go-apps/indoor-go-toolbox/0.6.0/index.html#/gps/inspector"
+    "https://cdn.jcbel.com/indoor-go-apps/indoor-go-toolbox/0.6.0/index.html#/satellite-location-inspector"
 };
 
 const routes: WebPageRoute[] = [SatelliteLocationInspectorRoute];

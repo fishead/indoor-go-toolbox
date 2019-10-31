@@ -1,4 +1,4 @@
-import React from "react";
+import React, { StrictMode } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
@@ -15,9 +15,11 @@ Sentry.init({
 });
 
 ReactDOM.render(
-  <Router>
-    <App />
-  </Router>,
+  <StrictMode>
+    <Router>
+      <App />
+    </Router>
+  </StrictMode>,
   document.getElementById("root")
 );
 
