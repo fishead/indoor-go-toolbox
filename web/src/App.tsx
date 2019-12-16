@@ -4,6 +4,10 @@ import Loadable from "react-loadable";
 import Loading from "./components/Loading";
 import { AppContext } from "./AppContext";
 
+const AccelerationInspector = Loadable({
+  loader: () => import("./pages/AccelerationInspector"),
+  loading: Loading
+});
 const SatelliteLocationInspector = Loadable({
   loader: () => import("./pages/SatelliteLocationInspector"),
   loading: Loading
@@ -25,6 +29,10 @@ export const App = () => {
     <AppContext.Provider value={{ jcmapToken, setJcmapToken: saveJcmapToken }}>
       <Switch>
         <Route
+          path="/acceleration-inspector"
+          component={AccelerationInspector}
+        />
+        <Route
           path="/satellite-location-inspector"
           component={SatelliteLocationInspector}
         />
@@ -41,6 +49,9 @@ export default App;
 function Menu() {
   return (
     <ul>
+      <li>
+        <Link to="/acceleration-inspector">加速度测试</Link>
+      </li>
       <li>
         <Link to="/satellite-location-inspector">卫星定位测试</Link>
       </li>

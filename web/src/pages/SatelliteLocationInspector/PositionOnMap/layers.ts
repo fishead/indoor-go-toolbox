@@ -34,14 +34,26 @@ export function getUserPositionLayer(): Layer {
   };
 }
 
-export function getPositionHistoryLayer(): Layer {
+export function getRawPositionHistoryLayer(): Layer {
   return {
-    id: "positions",
+    id: "rawPositions",
     type: "circle",
-    source: "positions",
+    source: "rawPositions",
     paint: {
       "circle-color": "crimson",
-      "circle-radius": 7
+      "circle-radius": 3
+    }
+  };
+}
+
+export function getKalmanFilterPositionHistoryLayer(): Layer {
+  return {
+    id: "kalmanFilterPositions",
+    type: "circle",
+    source: "kalmanFilterPositions",
+    paint: {
+      "circle-color": "aqua",
+      "circle-radius": 3
     }
   };
 }

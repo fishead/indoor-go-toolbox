@@ -5,7 +5,7 @@ import {
   Props as OriginProps
 } from "./AccuracyDistributionChart";
 import { RouteComponentProps } from "react-router-dom";
-import Button from "@material-ui/core/button";
+import Button from "@material-ui/core/Button";
 
 export interface Statistic {
   successCount: number;

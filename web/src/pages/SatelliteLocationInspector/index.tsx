@@ -1,14 +1,8 @@
 import React, { useCallback, useMemo, useState, FC, useReducer } from "react";
-import Button from "@material-ui/core/button";
+import Button from "@material-ui/core/Button";
 import Snackbar from "@material-ui/core/Snackbar";
 import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Input from "@material-ui/core/Input";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
 import Helmet from "react-helmet";
 import { Route, RouteComponentProps } from "react-router-dom";
 import Loadable from "react-loadable";
@@ -16,81 +10,94 @@ import Loading from "../../components/Loading";
 import Toolbar from "@material-ui/core/Toolbar";
 import { reducer, defaultState } from "./reducer";
 import {
-  ChangeEnableHighAccuracyActionPayload,
-  ChangeMaximumAgeActionPayload,
-  ChangeTimeoutActionPayload
-} from "./types";
-import {
   changeEnableHighAccuracy,
   changeMaximumAge,
   changeTimeout,
   clearResults,
   startGetCurrentPosition,
-  getPositionSuccess,
-  getPositionError
+  getRawPositionSuccess,
+  getRawPositionError,
+  getKalmanFilterPositionSuccess
 } from "./actions";
 import PositionOnMap from "./PositionOnMap";
+import PositionOptionsConfig from "./PositionOptionsConfig";
+import style from "./index.module.css";
+import { LowPassFilter } from "../../utilities";
+import { GCJ02Filter } from "./GCJ02Filter";
+import { GPSKalmanFilter } from "./GPSKalmanFilter";
 
 const Report = Loadable({
   loader: () => import("./Report"),
   loading: Loading
 });
 
-const enableHighAccuracyOptions: {
-  name: string;
-  value: ChangeEnableHighAccuracyActionPayload["select"];
-}[] = [
-  {
-    name: "默认值",
-    value: "default"
-  },
-  {
-    name: "true",
-    value: "true"
-  },
-  {
-    name: "false",
-    value: "false"
-  }
-];
-
-const maximumAgeOptions: {
-  name: string;
-  value: ChangeMaximumAgeActionPayload["select"];
-}[] = [
-  {
-    name: "默认值",
-    value: "default"
-  },
-  {
-    name: "POSITIVE INFINITY",
-    value: "positive-infinity"
-  },
-  {
-    name: "Custom",
-    value: "custom"
-  }
-];
-
 export const SatelliteLocationInspector: FC<RouteComponentProps> = props => {
   const geolocation = useMemo(() => window.navigator.geolocation, []);
 
   const [state, dispatch] = useReducer(reducer, defaultState as any);
 
+  const lowPassFilter = useMemo(() => {
+    return new LowPassFilter<Position>({
+      cutoff: 999999,
+      frequencyPluck: pos => pos.coords.accuracy
+    });
+  }, []);
+
+  const gcj02Filter = useMemo(() => {
+    return new GCJ02Filter();
+  }, []);
+
+  const kalmanFilter = useMemo(() => {
+    return new GPSKalmanFilter({
+      processNoise: 20
+    });
+  }, []);
+
+  const handleGeoLocationError = useCallback(err => {
+    dispatch(getRawPositionError(err));
+  }, []);
+
+  const handlePositionChange = useCallback(
+    (source: "getCurrentPosition" | "watchPosition", pos: Position) => {
+      const p1 = lowPassFilter.process(pos);
+      const p2 = p1 && gcj02Filter.process(p1);
+      if (p2) {
+        dispatch(getRawPositionSuccess({ source, position: p2 }));
+      }
+
+      const p3 = p2 && kalmanFilter.process(p2);
+      if (p3) {
+        if (p2) {
+          dispatch(
+            getKalmanFilterPositionSuccess({
+              source,
+              position: p3
+            })
+          );
+        }
+      }
+    },
+    [gcj02Filter, kalmanFilter, lowPassFilter]
+  );
+
   const getCurrentPosition = useCallback(() => {
     if (state.waitingLocation) {
       return;
     }
+
     dispatch(startGetCurrentPosition());
     geolocation.getCurrentPosition(
-      pos =>
-        dispatch(
-          getPositionSuccess({ source: "getCurrentPosition", position: pos })
-        ),
-      err => dispatch(getPositionError(err)),
-      state.form.positionOptions
+      pos => handlePositionChange("getCurrentPosition", pos),
+      handleGeoLocationError,
+      state.positionOptions
     );
-  }, [geolocation, state.form.positionOptions, state.waitingLocation]);
+  }, [
+    geolocation,
+    handleGeoLocationError,
+    handlePositionChange,
+    state.positionOptions,
+    state.waitingLocation
+  ]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [watchId, setWatchId] = useState();
@@ -102,25 +109,31 @@ export const SatelliteLocationInspector: FC<RouteComponentProps> = props => {
 
     setWatchId(
       geolocation.watchPosition(
-        pos =>
-          dispatch(
-            getPositionSuccess({ source: "watchPosition", position: pos })
-          ),
-        err => dispatch(getPositionError(err)),
-        state.form.positionOptions
+        pos => handlePositionChange("watchPosition", pos),
+        handleGeoLocationError,
+        state.positionOptions
       )
     );
-  }, [geolocation, state.form.positionOptions, watchId]);
+  }, [
+    geolocation,
+    handleGeoLocationError,
+    handlePositionChange,
+    state.positionOptions,
+    watchId
+  ]);
 
   const stopWatchLocation = useCallback(() => {
     setSnackbarOpen(isSnackbarOpen =>
       isSnackbarOpen ? false : isSnackbarOpen
     );
+
     if (watchId) {
       geolocation.clearWatch(watchId);
       setWatchId(undefined);
     }
-  }, [geolocation, watchId]);
+
+    kalmanFilter.reset();
+  }, [geolocation, kalmanFilter, watchId]);
 
   const showCharts = useCallback(() => {
     props.history.push({
@@ -136,153 +149,61 @@ export const SatelliteLocationInspector: FC<RouteComponentProps> = props => {
 
   const [selectedCartogramId, setSelectedCartogramId] = useState<string>("");
 
+  const mockPosition = useCallback(
+    (pos: Position) => {
+      dispatch(
+        getRawPositionSuccess({ source: "watchPosition", position: pos })
+      );
+
+      const p3 = kalmanFilter.process(pos);
+      if (p3) {
+        dispatch(
+          getKalmanFilterPositionSuccess({
+            source: "watchPosition",
+            position: p3
+          })
+        );
+      }
+    },
+    [kalmanFilter]
+  );
+
   if (!geolocation) {
     return <Paper>地理位置服务不可用</Paper>;
   }
 
   return (
     <>
-      <form
-        style={{
-          padding: "2px 4px",
-          backgroundColor: "white"
-        }}
-      >
+      <form className={style.container}>
         <Helmet>
           <title>浏览器 GPS 定位测试</title>
         </Helmet>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <FormControl style={{ flex: 1 }}>
-            <InputLabel htmlFor="enable-high-accuracy">
-              Enable High Accuracy
-            </InputLabel>
-            <Select
-              value={state.form.enableHighAccuracyField.select}
-              onChange={evt =>
-                dispatch(
-                  changeEnableHighAccuracy({
-                    select: evt.target
-                      .value as ChangeEnableHighAccuracyActionPayload["select"]
-                  })
-                )
-              }
-              input={
-                <Input
-                  id="enable-high-accuracy"
-                  value={state.form.enableHighAccuracyField.select}
-                />
-              }
-            >
-              {enableHighAccuracyOptions.map(opt => (
-                <MenuItem key={opt.value} value={opt.value}>
-                  {opt.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between"
-            }}
-          >
-            <FormControl style={{ width: "30%" }}>
-              <InputLabel htmlFor="maximum-age">Maximum Age</InputLabel>
-              <Select
-                value={state.form.maximumAgeField.select}
-                onChange={evt =>
-                  dispatch(
-                    changeMaximumAge({
-                      select: evt.target
-                        .value as ChangeMaximumAgeActionPayload["select"],
-                      input: state.form.maximumAgeField.input
-                    })
-                  )
-                }
-                input={
-                  <Input
-                    id="maximum-age"
-                    value={state.form.maximumAgeField.select}
-                  />
-                }
-              >
-                {maximumAgeOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl style={{ width: "64%" }}>
-              <TextField
-                type="number"
-                label="Custom"
-                value={state.form.maximumAgeField.input}
-                onChange={evt =>
-                  dispatch(
-                    changeMaximumAge({
-                      select: "custom",
-                      input: evt.target.value
-                    })
-                  )
-                }
-                disabled={state.form.maximumAgeField.select !== "custom"}
-              />
-            </FormControl>
+        <PositionOptionsConfig
+          onEnableHighAccuracyChange={v => {
+            dispatch(changeEnableHighAccuracy(v));
+          }}
+          onMaximumAgeChange={v => {
+            dispatch(changeMaximumAge(v));
+          }}
+          onTimeoutChange={v => {
+            dispatch(changeTimeout(v));
+          }}
+        />
+
+        <div className={style.data_container}>
+          <div className={[style.data_item, style.data_item_raw].join(" ")}>
+            Raw
           </div>
-
           <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between"
-            }}
+            className={[style.data_item, style.data_item_kalman_filter].join(
+              " "
+            )}
           >
-            <FormControl style={{ width: "30%" }}>
-              <InputLabel htmlFor="timeout">Timeout</InputLabel>
-              <Select
-                value={state.form.timeoutField.select}
-                onChange={evt =>
-                  dispatch(
-                    changeTimeout({
-                      select: evt.target
-                        .value as ChangeTimeoutActionPayload["select"],
-                      input: state.form.timeoutField.input
-                    })
-                  )
-                }
-                input={
-                  <Input id="timeout" value={state.form.timeoutField.select} />
-                }
-              >
-                {maximumAgeOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl style={{ width: "64%" }}>
-              <TextField
-                type="number"
-                label="Custom"
-                value={state.form.timeoutField.input}
-                onChange={evt =>
-                  dispatch(
-                    changeTimeout({
-                      select: "custom",
-                      input: evt.target.value
-                    })
-                  )
-                }
-                disabled={state.form.timeoutField.select !== "custom"}
-              />
-            </FormControl>
+            Kalman Filter
           </div>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -346,9 +267,11 @@ export const SatelliteLocationInspector: FC<RouteComponentProps> = props => {
           <PositionOnMap
             open={!!routeProps.match}
             {...routeProps}
-            locations={state.locations}
+            rawPositions={state.rawPositions}
+            kalmanFilterPositions={state.kalmanFilterPositions}
             cartogramId={selectedCartogramId}
             onSelectCartogramId={setSelectedCartogramId}
+            mockPosition={mockPosition}
           />
         )}
       />

@@ -3,16 +3,19 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import { HashRouter as Router } from "react-router-dom";
-import * as Sentry from "@sentry/browser";
 import App from "./App";
 import { name, version } from "../package.json";
 
-Sentry.init({
-  dsn: "https://497cb833875a4878bde917feca867683@sentry.jcbel.com/42",
-  environment:
-    process.env.NODE_ENV === "production" ? "production" : "development",
-  release: `${name.replace("@", "")}@${version}`
-});
+if (process.env.NODE_ENV === "production") {
+  import("@sentry/browser").then(Sentry => {
+    Sentry.init({
+      dsn: "https://497cb833875a4878bde917feca867683@sentry.jcbel.com/42",
+      environment:
+        process.env.NODE_ENV === "production" ? "production" : "development",
+      release: `${name.replace("@", "")}@${version}`
+    });
+  });
+}
 
 ReactDOM.render(
   <StrictMode>

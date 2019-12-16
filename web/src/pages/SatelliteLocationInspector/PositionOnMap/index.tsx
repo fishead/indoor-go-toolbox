@@ -1,17 +1,23 @@
 import React, { FC, useCallback, useEffect, useState, useMemo } from "react";
-import { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
+import {
+  Map as MapboxMap,
+  GeoJSONSource,
+  MapMouseEvent,
+  EventData
+} from "mapbox-gl";
 import { RouteComponentProps, Route } from "react-router-dom";
 import Helmet from "react-helmet";
 import { dependencies } from "../../../../package.json";
 import { Feature, Point } from "geojson";
 import { FeatureCollection } from "geojson";
-import Button from "@material-ui/core/button";
+import Button from "@material-ui/core/Button";
 import turfBbox from "@turf/bbox";
 import CartogramList from "../CartogramList";
 import {
   getPlaceholderLayer,
   getAmapRasterLayer,
-  getPositionHistoryLayer,
+  getRawPositionHistoryLayer,
+  getKalmanFilterPositionHistoryLayer,
   getUserPositionLayer,
   getVectorCartogramLayers
 } from "./layers";
@@ -19,13 +25,18 @@ import styled from "@emotion/styled";
 
 export interface Props {
   open: boolean;
-  locations: Feature<Point>[];
+  rawPositions: Feature<Point>[];
+  kalmanFilterPositions: Feature<Point>[];
   cartogramId?: string;
   onSelectCartogramId: (cartogramId: string) => void;
+  mockPosition: (pos: Position) => void;
 }
 
 export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
-  const locations = useMemo(() => props.locations, [props.locations]);
+  const rawPositions = useMemo(() => props.rawPositions, [props.rawPositions]);
+  const kalmanFilterPositions = useMemo(() => props.kalmanFilterPositions, [
+    props.kalmanFilterPositions
+  ]);
   const [mapboxMap, setMapboxMap] = useState<MapboxMap>();
   const [cartogramListVisiable, toggleCartogramListVisiable] = useState(false);
 
@@ -35,7 +46,7 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
         return;
       }
 
-      const recentLocation = locations[0];
+      const recentLocation = rawPositions[0];
       const _mapboxMap = new MapboxMap({
         container,
         zoom: 17,
@@ -75,7 +86,14 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
                 features: []
               }
             },
-            positions: {
+            rawPositions: {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: []
+              }
+            },
+            kalmanFilterPositions: {
               type: "geojson",
               data: {
                 type: "FeatureCollection",
@@ -86,7 +104,8 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
           layers: [
             getAmapRasterLayer(),
             getPlaceholderLayer("vector"),
-            getPositionHistoryLayer(),
+            getRawPositionHistoryLayer(),
+            getKalmanFilterPositionHistoryLayer(),
             getUserPositionLayer()
           ]
         }
@@ -101,37 +120,71 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
       });
       setMapboxMap(_mapboxMap);
     },
-    [locations, mapboxMap]
+    [rawPositions, mapboxMap]
   );
 
+  // 模拟位置
   useEffect(() => {
     if (!mapboxMap) {
       return;
     }
 
-    const recentPosition = locations[0];
-    if (recentPosition) {
-      const userPositionSource = mapboxMap.getSource(
-        "userPosition"
-      ) as GeoJSONSource;
-      userPositionSource.setData(recentPosition);
+    const type = "click";
+    const handler = (evt: MapMouseEvent & EventData) => {
+      if (evt.originalEvent.altKey) {
+        const { lng, lat } = evt.lngLat;
+        props.mockPosition({
+          timestamp: Date.now(),
+          coords: {
+            accuracy: Math.random() * 99,
+            altitude: 0,
+            altitudeAccuracy: 0,
+            heading: Math.random() > 0.5 ? 1 : -1 * Math.random() * 180,
+            latitude: lat,
+            longitude: lng,
+            speed: Math.random()
+          }
+        } as Position);
+      }
+    };
+    mapboxMap.on(type, handler);
+
+    return () => {
+      mapboxMap.off(type, handler);
+    };
+  }, [mapboxMap, props]);
+
+  // 更新未处理过的数据
+  useEffect(() => {
+    if (!mapboxMap) {
+      return;
     }
 
-    const positionsSource = mapboxMap.getSource("positions") as GeoJSONSource;
+    const positionsSource = mapboxMap.getSource(
+      "rawPositions"
+    ) as GeoJSONSource;
     const data: FeatureCollection<Point> = {
       type: "FeatureCollection",
-      features: locations
+      features: rawPositions
     };
     positionsSource.setData(data);
+  }, [mapboxMap, rawPositions]);
 
-    if (locations.length === 1) {
-      const [minLng, minLat, maxLng, maxLat] = turfBbox(data);
-      mapboxMap.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
-        padding: 20,
-        maxZoom: 17
-      });
+  // 更新 KalmanFilter 处理之后的数据
+  useEffect(() => {
+    if (!mapboxMap) {
+      return;
     }
-  }, [mapboxMap, locations]);
+
+    const positionsSource = mapboxMap.getSource(
+      "kalmanFilterPositions"
+    ) as GeoJSONSource;
+    const data: FeatureCollection<Point> = {
+      type: "FeatureCollection",
+      features: kalmanFilterPositions
+    };
+    positionsSource.setData(data);
+  }, [mapboxMap, kalmanFilterPositions]);
 
   const handleCartogramListSelectClose = useCallback(
     (cartogramId: string) => {
@@ -140,6 +193,40 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
     },
     [props]
   );
+
+  // 显示当前原始位置
+  useEffect(() => {
+    if (!mapboxMap) {
+      return;
+    }
+
+    const recentPosition = rawPositions[0];
+    if (recentPosition) {
+      const userPositionSource = mapboxMap.getSource(
+        "userPosition"
+      ) as GeoJSONSource;
+      userPositionSource.setData(recentPosition);
+    }
+  }, [mapboxMap, rawPositions]);
+
+  // 根据数据居中地图
+  useEffect(() => {
+    if (!mapboxMap) {
+      return;
+    }
+
+    const data: FeatureCollection<Point> = {
+      type: "FeatureCollection",
+      features: [...rawPositions, ...kalmanFilterPositions]
+    };
+    if (data.features.length) {
+      const [minLng, minLat, maxLng, maxLat] = turfBbox(data);
+      mapboxMap.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
+        padding: 20,
+        maxZoom: 17
+      });
+    }
+  }, [kalmanFilterPositions, mapboxMap, rawPositions]);
 
   useEffect(() => {
     if (!mapboxMap || !props.cartogramId) {
@@ -160,7 +247,7 @@ export const PositionOnMap: FC<Props & RouteComponentProps> = props => {
       mapboxMap.addSource("vectorCartogram", {
         type: "vector",
         tiles: [
-          `https://jcmap.jcbel.com/apis/cartogram-tiles/{z}/{x}/{y}?cartogram_id=${props.cartogramId}&layers=background,area,room_background,park,room,icon&refresh=1`
+          `https://jcmap.jcbel.com/apis/cartogram-tiles/{z}/{x}/{y}?cartogram_id=${props.cartogramId}&layers=background,area,room_background,road,park,room,icon&refresh=1`
         ],
         minzoom: 14,
         maxzoom: 20

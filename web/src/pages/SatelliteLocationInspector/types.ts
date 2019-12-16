@@ -1,7 +1,8 @@
 import { Statistic as ReportStatistic } from "./Report";
 
 export interface ChangeEnableHighAccuracyActionPayload {
-  select: "default" | "true" | "false";
+  select: "default" | "custom";
+  input?: boolean;
 }
 
 export interface ChangeMaximumAgeActionPayload {

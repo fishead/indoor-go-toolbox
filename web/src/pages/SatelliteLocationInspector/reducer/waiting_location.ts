@@ -1,19 +1,19 @@
 import { createReducer } from "deox";
 import {
-  getPositionSuccess,
-  getPositionError,
+  getRawPositionSuccess,
+  getRawPositionError,
   startGetCurrentPosition
 } from "../actions";
 
 export const defaultState = false;
 export const reducer = createReducer(defaultState, handleAction => [
   handleAction(startGetCurrentPosition, () => true),
-  handleAction(getPositionSuccess, (state, action) => {
+  handleAction(getRawPositionSuccess, (state, action) => {
     if (action.meta.source === "getCurrentPosition") {
       return false;
     }
 
     return state;
   }),
-  handleAction(getPositionError, () => false)
+  handleAction(getRawPositionError, () => false)
 ]);

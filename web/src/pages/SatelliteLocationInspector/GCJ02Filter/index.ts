@@ -1,42 +1,31 @@
-import { Position } from "../geojson";
+import { positionToJSON } from "../../../utilities";
 
 const { sin, cos, sqrt, abs, PI } = Math;
 
 const a = 6378245;
 const ee = 0.006693421622965823;
 
-export function GCJ02ToWGS84(coord: Position): Position {
-  const [lon, lat] = coord;
+export class GCJ02Filter {
+  process(pos: Position): Position {
+    const copy = positionToJSON(pos);
+    let lng = copy.coords.longitude;
+    let lat = copy.coords.latitude;
 
-  if (!isInChinaBbox(lon, lat)) return [lon, lat];
+    if (isInChinaBbox(lng, lat)) {
+      const d = delta(lng, lat);
+      lng += d[0];
+      lat += d[1];
+    }
 
-  let [wgsLon, wgsLat] = [lon, lat];
-
-  let tempPoint = WGS84ToGCJ02([wgsLon, wgsLat]);
-
-  let dx = tempPoint[0] - lon;
-  let dy = tempPoint[1] - lat;
-
-  while (abs(dx) > 1e-6 || abs(dy) > 1e-6) {
-    wgsLon -= dx;
-    wgsLat -= dy;
-
-    tempPoint = WGS84ToGCJ02([wgsLon, wgsLat]);
-    dx = tempPoint[0] - lon;
-    dy = tempPoint[1] - lat;
+    return {
+      ...copy,
+      coords: {
+        ...copy.coords,
+        longitude: lng,
+        latitude: lat
+      }
+    };
   }
-
-  return [wgsLon, wgsLat];
-}
-
-export function WGS84ToGCJ02(coord: Position): Position {
-  const [lon, lat] = coord;
-
-  if (!isInChinaBbox(lon, lat)) return [lon, lat];
-
-  const d = delta(lon, lat);
-
-  return [lon + d[0], lat + d[1]];
 }
 
 function transformLat(x: number, y: number): number {

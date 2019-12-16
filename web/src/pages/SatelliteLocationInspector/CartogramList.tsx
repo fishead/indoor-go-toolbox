@@ -6,19 +6,17 @@ import React, {
   useMemo,
   useCallback
 } from "react";
-import {
-  List,
-  ListItemText,
-  ListItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  CircularProgress,
-  DialogContentText,
-  TextField
-} from "@material-ui/core";
+import List from "@material-ui/core/List";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItem from "@material-ui/core/ListItem";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import TextField from "@material-ui/core/TextField";
 import JCMapLogin from "./JCMapLogin";
 import { AppContext } from "../../AppContext";
 import { stringify as qsStringify } from "qs";

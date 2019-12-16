@@ -1,13 +1,17 @@
 import { createReducer } from "deox";
-import { clearResults, getPositionSuccess, getPositionError } from "../actions";
+import {
+  clearResults,
+  getRawPositionSuccess,
+  getRawPositionError
+} from "../actions";
 
 export const defaultState = "";
 export const reducer = createReducer(defaultState, handleAction => [
   handleAction(clearResults, () => ""),
-  handleAction(getPositionSuccess, (state, action) => {
+  handleAction(getRawPositionSuccess, (state, action) => {
     return `${stringifyPosition(action.payload)}\n\n${state}`;
   }),
-  handleAction(getPositionError, (state, action) => {
+  handleAction(getRawPositionError, (state, action) => {
     return state + action.payload.message + "\n\n";
   })
 ]);

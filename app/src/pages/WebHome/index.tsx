@@ -13,13 +13,22 @@ interface WebPageRoute {
   pagePath: string;
 }
 
+const AccelerationInspectorRoute: WebPageRoute = {
+  text: "加速度测试",
+  pagePath:
+    "https://cdn.jcbel.com/indoor-go-apps/indoor-go-toolbox/0.7.0/index.html#/acceleration-inspector"
+};
+
 const SatelliteLocationInspectorRoute: WebPageRoute = {
   text: "卫星定位测试",
   pagePath:
-    "https://cdn.jcbel.com/indoor-go-apps/indoor-go-toolbox/0.6.0/index.html#/satellite-location-inspector"
+    "https://cdn.jcbel.com/indoor-go-apps/indoor-go-toolbox/0.7.0/index.html#/satellite-location-inspector"
 };
 
-const routes: WebPageRoute[] = [SatelliteLocationInspectorRoute];
+const routes: WebPageRoute[] = [
+  AccelerationInspectorRoute,
+  SatelliteLocationInspectorRoute
+];
 
 const WebHome: FunctionComponent = () => {
   const [selectedRoute, setSelectedRoute] = useState<WebPageRoute | null>(null);

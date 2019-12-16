@@ -1,5 +1,9 @@
 import { createReducer } from "deox";
-import { clearResults, getPositionSuccess, getPositionError } from "../actions";
+import {
+  clearResults,
+  getRawPositionSuccess,
+  getRawPositionError
+} from "../actions";
 import { Statistic } from "../types";
 import { insert, prop, sortBy } from "ramda";
 import { combineReducers } from "redux";
@@ -12,17 +16,17 @@ export const defaultState: Statistic = {
 
 const successCount = createReducer(defaultState.successCount, handleAction => [
   handleAction(clearResults, () => defaultState.successCount),
-  handleAction(getPositionSuccess, state => state + 1)
+  handleAction(getRawPositionSuccess, state => state + 1)
 ]);
 
 const errorCount = createReducer(defaultState.errorCount, handleAction => [
   handleAction(clearResults, () => defaultState.errorCount),
-  handleAction(getPositionError, state => state + 1)
+  handleAction(getRawPositionError, state => state + 1)
 ]);
 
 const data = createReducer(defaultState.data, handleAction => [
   handleAction(clearResults, () => defaultState.data),
-  handleAction(getPositionSuccess, (state, action) => {
+  handleAction(getRawPositionSuccess, (state, action) => {
     const {
       coords: { accuracy }
     } = action.payload;

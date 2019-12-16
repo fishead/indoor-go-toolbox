@@ -1,0 +1,18 @@
+.container {
+  height: 100vh;
+  /* display: flex; */
+  flex-direction: column;
+  padding: 5px;
+}
+
+.value_container {
+  flex: 1;
+}
+
+.chart1_container {
+  flex: 3;
+}
+
+.chart2_container {
+  flex: 3;
+}

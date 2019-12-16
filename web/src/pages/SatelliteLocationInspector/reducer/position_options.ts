@@ -1,112 +1,33 @@
 import { createReducer } from "deox";
-import { combineReducers } from "redux";
 import {
   changeEnableHighAccuracy,
   changeMaximumAge,
   changeTimeout
 } from "../actions";
 
-const defaultPositionOptions: PositionOptions = {};
-const positionOptions = createReducer(defaultPositionOptions, handleAction => [
+export const defaultState: PositionOptions = {
+  enableHighAccuracy: true,
+  maximumAge: 3000,
+  timeout: 10000
+};
+
+export const reducer = createReducer(defaultState, handleAction => [
   handleAction(changeEnableHighAccuracy, (state, action) => {
-    const { select } = action.payload;
-    switch (select) {
-      case "true":
-        return {
-          ...state,
-          enableHighAccuracy: true
-        };
-      case "false":
-        return {
-          ...state,
-          enableHighAccuracy: false
-        };
-      case "default":
-      default:
-        return {
-          ...state,
-          enableHighAccuracy: undefined
-        };
-    }
+    return {
+      ...state,
+      enableHighAccuracy: action.payload
+    };
   }),
   handleAction(changeMaximumAge, (state, action) => {
-    const { select, input } = action.payload;
-    switch (select) {
-      case "custom":
-        return {
-          ...state,
-          maximumAge: Number(input)
-        };
-      case "positive-infinity":
-        return {
-          ...state,
-          maximumAge: Number.POSITIVE_INFINITY
-        };
-      case "default":
-      default:
-        return {
-          ...state,
-          maximumAge: undefined
-        };
-    }
+    return {
+      ...state,
+      maximumAge: action.payload
+    };
   }),
   handleAction(changeTimeout, (state, action) => {
-    const { select, input } = action.payload;
-    switch (select) {
-      case "custom":
-        return {
-          ...state,
-          timeout: Number(input)
-        };
-      case "positive-infinity":
-        return {
-          ...state,
-          timeout: Number.POSITIVE_INFINITY
-        };
-      case "default":
-      default:
-        return {
-          ...state,
-          timeout: undefined
-        };
-    }
+    return {
+      ...state,
+      timeout: action.payload
+    };
   })
 ]);
-
-const defaultEnableHighAccuracyField = { select: "default" };
-const enableHighAccuracyField = createReducer(
-  defaultEnableHighAccuracyField,
-  handleAction => [
-    handleAction(changeEnableHighAccuracy, (_, action) => action.payload)
-  ]
-);
-
-const defaultMaximumAgeField = {
-  select: "default",
-  input: ""
-};
-const maximumAgeField = createReducer(defaultMaximumAgeField, handleAction => [
-  handleAction(changeMaximumAge, (_, action) => action.payload)
-]);
-
-const defaultTimeoutField = {
-  select: "default",
-  input: ""
-};
-const timeoutField = createReducer(defaultTimeoutField, handleAction => [
-  handleAction(changeTimeout, (_, action) => action.payload)
-]);
-
-export const reducer = combineReducers({
-  positionOptions,
-  enableHighAccuracyField,
-  maximumAgeField,
-  timeoutField
-});
-
-export const defaultState = {
-  positionOptions: defaultPositionOptions,
-  enableHighAccuracyField: defaultEnableHighAccuracyField,
-  maximumAgeField: defaultMaximumAgeField,
-  timeoutField: defaultTimeoutField
-};
